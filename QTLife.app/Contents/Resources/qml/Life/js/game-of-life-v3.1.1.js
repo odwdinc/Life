@@ -463,7 +463,7 @@
             GOL.nextStep();
             document.getElementById('buttonRun').value = 'Stop';
           } else {
-            document.getElementById('buttonRun').value = 'Run';
+              document.getElementById('buttonRun').value = 'Run';
           }
         },
 

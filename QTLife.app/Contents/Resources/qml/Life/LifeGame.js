@@ -7,13 +7,40 @@ var maxColumn = 22;
 var maxRow = 15;
 var maxIndex = maxColumn * maxRow;
 var board = new Array(maxIndex);
-var component;
+var ElementID = new Array(16);
 
+var Elements = new Array(["canvas",
+"generation",
+"steptime",
+"livecells",
+"layoutMessages",
+"hint",
+"buttonRun",
+"buttonStep",
+"buttonClear",
+"buttonExport",
+"buttonTrail",
+ "buttonGrid",
+ "buttonColors",
+ "exportUrlLink",
+ "exportTinyUrlLink",
+ "exportUrl",]);
+
+
+var component;
 
 
 //Index function used instead of a 2D array
 function index(column, row) {
     return column + (row * maxColumn);
+}
+
+function handleClick(xPos, yPos) {
+    var column = Math.floor(xPos / GS.GOL.zoom.schemes[GS.GOL.zoom.current].cellSize);
+    var row = Math.floor(yPos / GS.GOL.zoom.schemes[GS.GOL.zoom.current].cellSize);
+    if (column >= maxColumn || column < 0 || row >= maxRow || row < 0)
+        return [-1,-1];
+    return [column,row];
 }
 
 var Context = {
@@ -29,8 +56,6 @@ var Context = {
         var  dynamicObject = board[index(column, row)];
 
         if(dynamicObject == null){
-
-            console.log("CreateCell: function ("+column+","+row+" ,"+width+")"+GS.GOL.canvas.context.fillStyle);
 
             if (component == null)
                 component = Qt.createComponent("Block.qml");
@@ -67,14 +92,11 @@ var Context = {
 
         if(cellState === currentSchemes.dead){
             dynamicObject.sTate = 0;
-            //console.log("fillRect: column: "+column+" row:"+row +" dead "+cellState+" "+currentSchemes.dead);
         }else if(cellState === currentSchemes.alive || currentSchemes.alive.indexOf(cellState) > -1){
             dynamicObject.sTate = 2;
-            //console.log("fillRect: column: "+column+" row:"+row +" alive"+cellState+" "+currentSchemes.alive);
         }else{
             dynamicObject.sTate = 5;
-            //dynamicObject.trailColor.color = cellState;
-            //console.log("fillRect: column: "+column+" row:"+row +" trail")
+            dynamicObject.trailColor.color = cellState;
         }
 
 
@@ -85,8 +107,12 @@ var Context = {
 GS.setTimeout = function setTimeout(func,delay){
     //console.log("function setTimeout("+func+","+delay+")");
     screen.startTimer(delay);
+
 }
 
+GS.GOL.helpers.mousePosition = function (e) {
+    return handleClick(e.x,e.y);
+}
 
 
 var Element = {
@@ -110,7 +136,9 @@ var Element = {
     },
     getAttribute : function(type,vale){
         console.log("Element.getAttribute : function("+ type + "," + vale + ")");
-    }
+    },
+    value : "Run",
+    OldValue : "Run"
 
 };
 
@@ -149,25 +177,28 @@ GS.document ={
 
     getElementById : function(type){
         console.log("document.getElementById("+type+")");
+        if(ElementID[type] == null){
+            ElementID[type] = Element;
+        }
         /*
-          canvas
-          generation
-          steptime
-          livecells
-          layoutMessages
-          hint
-          buttonRun
-          buttonStep
-          buttonClear
-          buttonExport
-          buttonTrail
-          buttonGrid
-          buttonColors
-          exportUrlLink
-          exportTinyUrlLink
-          exportUrl
+                           ["canvas",
+                           "generation",
+                           "steptime",
+                           "livecells",
+                           "layoutMessages",
+                           "hint",
+                           "buttonRun",
+                           "buttonStep",
+                           "buttonClear",
+                           "buttonExport",
+                           "buttonTrail",
+                           buttonGrid
+                           buttonColors
+                           exportUrlLink
+                           exportTinyUrlLink
+                           exportUrl]
         */
-        return Element;
+        return ElementID[type];
     },
     addEventListener :function (event, handler, capture){
         console.log("document.addEventListener: function(" + event + ", " + handler + ", " + capture + ")" );
@@ -199,9 +230,6 @@ function update(){
     GS.GOL.nextStep();
 }
 
-function handleClick(x,y){
-
-}
 
 function gamePause(){
     GS.GOL.handlers.buttons.run();
@@ -224,10 +252,11 @@ function MouseDown(event){
     GS.GOL.handlers.canvasMouseDown(event);
 }
 
-function MouseUp(){
+function MouseUp(event){
     GS.GOL.handlers.canvasMouseUp();
 }
 function  MouseMove(event){
+    //event.offsetParent = false;
     GS.GOL.handlers.canvasMouseMove(event);
 }
 
@@ -285,14 +314,7 @@ function createBlock(column, row) {
 }
 
 
-function handleClick(xPos, yPos) {
-    var column = Math.floor(xPos / gameCanvas.blockSize);
-    var row = Math.floor(yPos / gameCanvas.blockSize);
-    if (column >= maxColumn || column < 0 || row >= maxRow || row < 0)
-        return;
-    chengeCell(column,row);
 
-}
 
 
 

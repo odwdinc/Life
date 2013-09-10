@@ -42,8 +42,11 @@ Rectangle {
 
             MouseArea {
                 anchors.fill: parent;
-                onClicked: SameGame.handleClick(mouse.x,mouse.y);
-                onPositionChanged: SameGame.handleClick(mouse.x,mouse.y);
+                onPressed : SameGame.MouseDown(mouse);
+                onReleased: SameGame.MouseUp(mouse);
+                onPositionChanged: SameGame.MouseMove(mouse);
+                //onClicked: SameGame.handleClick(mouse.x,mouse.y);
+                //onPositionChanged: SameGame.handleClick(mouse.x,mouse.y);
 
             }
         }
@@ -87,7 +90,7 @@ Rectangle {
             id: gameMode
             x: 95
             y: 4
-            text: "Pause"
+            text: "Play"
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 8
             onClicked:SameGame.gamePause();

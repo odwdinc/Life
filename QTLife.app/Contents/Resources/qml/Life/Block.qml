@@ -13,17 +13,20 @@ Item {
 
     Rectangle {
         id: rectangle2
-        x: -18
-        y: -18
-        width: 36
-        height: 36
-        color: "#ffffff"
-        opacity: 0
+        color: "#00000000"
+        scale: 1
+        anchors.rightMargin: 1
+        anchors.leftMargin: 1
+        anchors.bottomMargin: 1
+        anchors.topMargin: 1
+        anchors.fill: parent
+        border.color: "#000000"
+        opacity: 1
     }
 
     Image {
         id: img
-        scale: 1
+        scale: 0.8
         anchors.fill: parent
         source: "Living.png"
         opacity: 1
@@ -32,8 +35,8 @@ Item {
 
     Text {
         id: text1
-        x: 17
-        y: 13
+        x: 16
+        y: 11
         width: 7
         height: 14
         text: qsTr("0")
@@ -50,8 +53,6 @@ Item {
 
             PropertyChanges {
                 target: text1
-                x: 16
-                y: 9
                 color: "#d7eace"
                 font.pointSize: 11
                 transformOrigin: "Center"
@@ -70,6 +71,10 @@ Item {
             when: sTate == 1
             PropertyChanges {
                 target: img
+                anchors.rightMargin: -1
+                anchors.leftMargin: 1
+                anchors.bottomMargin: 0
+                anchors.topMargin: 0
                 scale: 0.5
                 sourceSize.height: 259
                 sourceSize.width: 243
@@ -109,7 +114,7 @@ Item {
                 sourceSize.height: 259
                 sourceSize.width: 243
                 opacity: 1
-                scale: 1
+                scale: 0.8
             }
 
             PropertyChanges {
