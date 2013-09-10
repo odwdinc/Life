@@ -4,8 +4,8 @@ import "LifeGame.js" as SameGame
 
 Rectangle {
     id: screen
-    function startNewGame(){
-        SameGame.startNewGame();
+    function init(){
+        SameGame.init();
     }
     function update(){
         SameGame.update();

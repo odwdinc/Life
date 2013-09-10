@@ -15,6 +15,7 @@ var Elements = new Array(["canvas",
 "livecells",
 "layoutMessages",
 "hint",
+
 "buttonRun",
 "buttonStep",
 "buttonClear",
@@ -26,6 +27,13 @@ var Elements = new Array(["canvas",
  "exportTinyUrlLink",
  "exportUrl",]);
 
+/**
+innerHTML
+
+value
+href
+style.display
+**/
 
 var component;
 
@@ -43,7 +51,9 @@ function handleClick(xPos, yPos) {
     return [column,row];
 }
 
+
 var Context = {
+    type : "Context",
     fillRect: function (x,y ,width ,height){
 
         if(width != GS.GOL.zoom.schemes[GS.GOL.zoom.current].cellSize){
@@ -105,7 +115,6 @@ var Context = {
 };
 
 GS.setTimeout = function setTimeout(func,delay){
-    //console.log("function setTimeout("+func+","+delay+")");
     screen.startTimer(delay);
 
 }
@@ -116,8 +125,8 @@ GS.GOL.helpers.mousePosition = function (e) {
 
 
 var Element = {
+    type : "",
     getContext : function(vale){
-        console.log("Element.getContext : function(" +vale+")");
         return Context;
     },
     s:{
@@ -126,19 +135,32 @@ var Element = {
     style:{
         display:""
     },
-
+    func : [],
     addEventListener :function (event, handler, capture){
-        console.log("Element.addEventListener: function(" + event + ", " + handler + ", " + capture + ")" );
-
+        this.func[event]=handler;
     },
     setAttribute : function(type,vale){
-        console.log("Element.setAttribute : function("+ type + "," + vale + ")");
+        console.log("Element("+this.type+").setAttribute : function("+ type + "," + vale + ")");
     },
     getAttribute : function(type,vale){
-        console.log("Element.getAttribute : function("+ type + "," + vale + ")");
+        console.log("Element("+this.type+").getAttribute : function("+ type + "," + vale + ")");
     },
-    value : "Run",
-    OldValue : "Run"
+    innerHTML:"",
+    value:"",
+    href:"",
+    style : {
+        display:""
+    },
+    OldValue : {
+        innerHTML:"",
+        value:"",
+        href:"",
+        style:{
+
+            display:""
+        }
+
+    }
 
 };
 
@@ -176,33 +198,18 @@ GS.document ={
     body: Element,
 
     getElementById : function(type){
-        console.log("document.getElementById("+type+")");
+
         if(ElementID[type] == null){
             ElementID[type] = Element;
+            var Elemente = Element;
+            Elemente.type = type;
         }
-        /*
-                           ["canvas",
-                           "generation",
-                           "steptime",
-                           "livecells",
-                           "layoutMessages",
-                           "hint",
-                           "buttonRun",
-                           "buttonStep",
-                           "buttonClear",
-                           "buttonExport",
-                           "buttonTrail",
-                           buttonGrid
-                           buttonColors
-                           exportUrlLink
-                           exportTinyUrlLink
-                           exportUrl]
-        */
+        //console.log("document.getElementById("+type+")");
         return ElementID[type];
     },
+    func : [],
     addEventListener :function (event, handler, capture){
-        console.log("document.addEventListener: function(" + event + ", " + handler + ", " + capture + ")" );
-
+        this.func[event]=handler;
     }
 };
 
@@ -219,21 +226,22 @@ this.element.steptime.text = "steptime "+algorithmTime + ' / '+guiTime+' ('+Math
 this.element.livecells.text = "livecells: "+liveCellNumber;
 
 **/
-
-function startNewGame(){
-    console.log("Start New Game!");
+function init(){
     GS.GOL.init();
 }
 
+function startNewGame(){
+    console.log("Start New Game!");
+    GS.GOL.prepare();
+}
+
 function update(){
-    //console.log("function update()");
     GS.GOL.nextStep();
 }
 
 
 function gamePause(){
     GS.GOL.handlers.buttons.run();
-
 }
 
 function gameClear(){
@@ -244,10 +252,6 @@ function gameStep(){
     GS.GOL.handlers.buttons.step();
 }
 
-function chengeCell(column,row){
-
-}
-
 function MouseDown(event){
     GS.GOL.handlers.canvasMouseDown(event);
 }
@@ -256,61 +260,7 @@ function MouseUp(event){
     GS.GOL.handlers.canvasMouseUp();
 }
 function  MouseMove(event){
-    //event.offsetParent = false;
     GS.GOL.handlers.canvasMouseMove(event);
-}
-
-
-
-
-
-
-
-
-function setupscreen(){
-    //Calculate board size
-    maxColumn = Math.floor(gameCanvas.width / gameCanvas.blockSize);
-    maxRow = Math.floor(gameCanvas.height / gameCanvas.blockSize);
-    maxIndex = maxRow * maxColumn;
-    //Initialize Board
-    board = new Array(maxIndex);
-
-    for (var column = 0; column < maxColumn; column++) {
-        for (var row = 0; row < maxRow; row++) {
-            createBlock(column, row);
-        }
-    }
-}
-
-function createBlock(column, row) {
-
-    if (component == null)
-        component = Qt.createComponent("Block.qml");
-
-    // Note that if Block.qml was not a local file, component.status would be
-    // Loading and we should wait for the component's statusChanged() signal to
-    // know when the file is downloaded and ready before calling createObject().
-    if (component.status == Quick.Component.Ready) {
-        var dynamicObject = component.createObject(gameCanvas);
-        if (dynamicObject == null) {
-            console.log("error creating block");
-            console.log(component.errorString());
-            return false;
-        }
-        dynamicObject.row = row;
-        dynamicObject.column = column;
-
-        dynamicObject.x = column * gameCanvas.blockSize;
-        dynamicObject.y = row * gameCanvas.blockSize;
-        dynamicObject.width = gameCanvas.blockSize;
-        dynamicObject.height = gameCanvas.blockSize;
-        board[index(column, row)] = dynamicObject;
-    } else {
-        console.log("error loading block component");
-        console.log(component.errorString());
-        return false;
-    }
-    return true;
 }
 
 

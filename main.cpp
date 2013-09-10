@@ -34,11 +34,14 @@
     handler->moveToThread(cThread);
 
 
+
     if(cThread->isRunning())
     {
-        qDebug() << " Thread is Running...";
+        qDebug() << "Thread is Running...";
+        QMetaObject::invokeMethod(viewer.rootObject(), "init");
     }
 
-    return app.exec();
+    int re =  app.exec();
 
+   return re;
 }
