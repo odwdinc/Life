@@ -83,7 +83,7 @@ var Context = {
 };
 
 GS.setTimeout = function setTimeout(func,delay){
-    console.log("function setTimeout("+func+","+delay+")");
+    //console.log("function setTimeout("+func+","+delay+")");
     screen.startTimer(delay);
 }
 
@@ -195,7 +195,7 @@ function startNewGame(){
 }
 
 function update(){
-    console.log("function update()");
+    //console.log("function update()");
     GS.GOL.nextStep();
 }
 

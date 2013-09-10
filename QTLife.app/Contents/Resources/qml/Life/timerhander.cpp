@@ -8,12 +8,12 @@ void TimerHander::startTimer(const int &delay){
     timer->setSingleShot(true);
     QObject::connect(timer, &QTimer::timeout, this, &TimerHander::update);
     timer->start(delay);
-    QString strre;
-    strre.sprintf("TimerHander::startTimer(%d)",delay);
-    qDebug() << strre;
+    //QString strre;
+    //strre.sprintf("TimerHander::startTimer(%d)",delay);
+    //qDebug() << strre;
 }
 
 void TimerHander::update(){
-    qDebug() << "TimerHander::update()";
+    //qDebug() << "TimerHander::update()";
     QMetaObject::invokeMethod(this->parent(), "update");
 }
