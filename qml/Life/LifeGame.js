@@ -2,6 +2,7 @@
 .import QtQuick.LocalStorage 2.0 as Sql
 .import QtQuick 2.0 as Quick
 .import "js/game-of-life-v3.1.1.js" as GS
+.import "js/json-minified.js" as JS
 
 var maxColumn = 22;
 var maxRow = 15;
@@ -10,22 +11,22 @@ var board = new Array(maxIndex);
 var ElementID = new Array(16);
 
 var Elements = new Array(["canvas",
-"generation",
-"steptime",
-"livecells",
-"layoutMessages",
-"hint",
+                          "generation",
+                          "steptime",
+                          "livecells",
+                          "layoutMessages",
+                          "hint",
 
-"buttonRun",
-"buttonStep",
-"buttonClear",
-"buttonExport",
-"buttonTrail",
- "buttonGrid",
- "buttonColors",
- "exportUrlLink",
- "exportTinyUrlLink",
- "exportUrl",]);
+                          "buttonRun",
+                          "buttonStep",
+                          "buttonClear",
+                          "buttonExport",
+                          "buttonTrail",
+                          "buttonGrid",
+                          "buttonColors",
+                          "exportUrlLink",
+                          "exportTinyUrlLink",
+                          "exportUrl",]);
 
 /**
 innerHTML
@@ -115,17 +116,32 @@ var Context = {
 };
 
 GS.setTimeout = function setTimeout(func,delay){
+    updateScreen();
     screen.startTimer(delay);
 
-}
+
+};
+
+GS.GOL.keepDOMElementsr= function() {
+
+    this.element.generation = generation;
+    this.element.steptime = steptime;
+    this.element.livecells = livecells;
+
+    this.element.steptime.text = "steptime 0 / 0 (0 / 0)"
+    this.element.livecells.text = "livecells: 0";
+    this.element.generation.text = 'Generation: 0';
+
+};
 
 GS.GOL.helpers.mousePosition = function (e) {
     return handleClick(e.x,e.y);
-}
+};
 
 
-var Element = {
-    type : "",
+var Element = function(vale){
+   return {
+    type : vale,
     getContext : function(vale){
         return Context;
     },
@@ -161,19 +177,43 @@ var Element = {
         }
 
     }
+    };
 
 };
 
 
 GS.navigator ={
     userAgent : "Mozilla/5.0"
-}
+};
 
 GS.window={
     location:{
         href:"http://pmav.eu/stuff/javascript-game-of-life-v3.1.1/?autoplay=0&trail=0&grid=1&colors=1&zoom=1&s=%5B{%2239%22:%5B110%5D},{%2240%22:%5B112%5D},{%2241%22:%5B109,110,113,114,115%5D}%5D"
     }
 };
+
+GS.jsonParse =function(json){
+    var state, i, j, y;
+
+    console.log("jsonParse("+json+")");
+    var myJsonObj = JS.jsonParse(json);
+    console.log("myJsonObj.length "+myJsonObj.length);
+
+    for (i = 0; i < myJsonObj.length; i++) {
+
+        console.log("myJsonObj[i] "+myJsonObj[i]);
+
+      for (y in myJsonObj[i]) {
+        for (j = 0 ; j < myJsonObj[i][y].length ; j++) {
+            console.log("this.listLife.addCell("+myJsonObj[i][y][j]+", "+parseInt(y, 10)+", "+GS.GOL.listLife.actualState+")");
+        }
+      }
+    }
+
+
+    return myJsonObj;
+
+}
 
 
 GS.GOL.zoom={
@@ -188,23 +228,17 @@ GS.GOL.zoom={
     ]
 };
 
-var testing = function(){
-    GS.GOL.handlers.buttons.run();
-};
-
 
 
 GS.document ={
-    body: Element,
+    body: new Element("document"),
 
     getElementById : function(type){
 
         if(ElementID[type] == null){
-            ElementID[type] = Element;
-            var Elemente = Element;
-            Elemente.type = type;
+            ElementID[type] = new Element(type);;
         }
-        //console.log("document.getElementById("+type+")");
+        console.log("document.getElementById("+type+").type = "+ElementID[type].type );
         return ElementID[type];
     },
     func : [],
@@ -212,20 +246,13 @@ GS.document ={
         this.func[event]=handler;
     }
 };
+function updateScreen(){
+    generation.text = "Generation: "+GS.GOL.element.generation.innerHTML;
+    livecells.text = "livecells: "+GS.GOL.element.livecells.innerHTML;
+    steptime.text =  "steptime "+ GS.GOL.element.steptime.innerHTML;
+    buttonRun.text = GS.document.getElementById('buttonRun').value;
+}
 
-/**
-this.element.steptime.text = "steptime 0 / 0 (0 / 0)"
-this.element.livecells.text = "livecells: 0";
-this.element.generation.text = 'Generation: 0';
-this.element.generation = generation;
-this.element.steptime = steptime;
-this.element.livecells = livecells;
-
-this.element.generation.text = "Generation: "+this.generation;
-this.element.steptime.text = "steptime "+algorithmTime + ' / '+guiTime+' ('+Math.round(this.times.algorithm) + ' / '+Math.round(this.times.gui)+')';
-this.element.livecells.text = "livecells: "+liveCellNumber;
-
-**/
 function init(){
     GS.GOL.init();
 }
@@ -240,7 +267,7 @@ function update(){
 }
 
 
-function gamePause(){
+function gameRun(){
     GS.GOL.handlers.buttons.run();
 }
 

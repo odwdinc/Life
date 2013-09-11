@@ -202,8 +202,8 @@
          * Load world state from URL parameter
          */
     loadState : function() {
-      var state, i, j, y //,s = this.helpers.getUrlParameter('s');
-      var s = 'random';
+      var state, i, j, y ,s = this.helpers.getUrlParameter('s');
+      //var s = 'random';
 
       if ( s === 'random') {
         this.randomState();
