@@ -2,6 +2,7 @@
 .import QtQuick.LocalStorage 2.0 as Sql
 .import QtQuick 2.0 as Quick
 .import "js/game-of-life-v3.1.1.js" as GS
+.import "js/json-sans-eval.js" as JS
 
 var maxColumn = 22;
 var maxRow = 15;
@@ -10,22 +11,30 @@ var board = new Array(maxIndex);
 var ElementID = new Array(16);
 
 var Elements = new Array(["canvas",
-"generation",
-"steptime",
-"livecells",
-"layoutMessages",
-"hint",
-"buttonRun",
-"buttonStep",
-"buttonClear",
-"buttonExport",
-"buttonTrail",
- "buttonGrid",
- "buttonColors",
- "exportUrlLink",
- "exportTinyUrlLink",
- "exportUrl",]);
+                          "generation",
+                          "steptime",
+                          "livecells",
+                          "layoutMessages",
+                          "hint",
 
+                          "buttonRun",
+                          "buttonStep",
+                          "buttonClear",
+                          "buttonExport",
+                          "buttonTrail",
+                          "buttonGrid",
+                          "buttonColors",
+                          "exportUrlLink",
+                          "exportTinyUrlLink",
+                          "exportUrl",]);
+
+/**
+innerHTML
+
+value
+href
+style.display
+**/
 
 var component;
 
@@ -43,7 +52,9 @@ function handleClick(xPos, yPos) {
     return [column,row];
 }
 
+
 var Context = {
+    type : "Context",
     fillRect: function (x,y ,width ,height){
 
         if(width != GS.GOL.zoom.schemes[GS.GOL.zoom.current].cellSize){
@@ -105,19 +116,33 @@ var Context = {
 };
 
 GS.setTimeout = function setTimeout(func,delay){
-    //console.log("function setTimeout("+func+","+delay+")");
+    updateScreen();
     screen.startTimer(delay);
 
-}
+
+};
+
+GS.GOL.keepDOMElementsr= function() {
+
+    this.element.generation = generation;
+    this.element.steptime = steptime;
+    this.element.livecells = livecells;
+
+    this.element.steptime.text = "steptime 0 / 0 (0 / 0)"
+    this.element.livecells.text = "livecells: 0";
+    this.element.generation.text = 'Generation: 0';
+
+};
 
 GS.GOL.helpers.mousePosition = function (e) {
     return handleClick(e.x,e.y);
-}
+};
 
 
-var Element = {
+var Element = function(vale){
+   return {
+    type : vale,
     getContext : function(vale){
-        console.log("Element.getContext : function(" +vale+")");
         return Context;
     },
     s:{
@@ -126,32 +151,69 @@ var Element = {
     style:{
         display:""
     },
-
+    func : [],
     addEventListener :function (event, handler, capture){
-        console.log("Element.addEventListener: function(" + event + ", " + handler + ", " + capture + ")" );
-
+        this.func[event]=handler;
     },
     setAttribute : function(type,vale){
-        console.log("Element.setAttribute : function("+ type + "," + vale + ")");
+        console.log("Element("+this.type+").setAttribute : function("+ type + "," + vale + ")");
     },
     getAttribute : function(type,vale){
-        console.log("Element.getAttribute : function("+ type + "," + vale + ")");
+        console.log("Element("+this.type+").getAttribute : function("+ type + "," + vale + ")");
     },
-    value : "Run",
-    OldValue : "Run"
+    innerHTML:"",
+    value:"",
+    href:"",
+    style : {
+        display:""
+    },
+    OldValue : {
+        innerHTML:"",
+        value:"",
+        href:"",
+        style:{
+
+            display:""
+        }
+
+    }
+    };
 
 };
 
 
 GS.navigator ={
     userAgent : "Mozilla/5.0"
-}
+};
 
 GS.window={
     location:{
         href:"http://pmav.eu/stuff/javascript-game-of-life-v3.1.1/?autoplay=0&trail=0&grid=1&colors=1&zoom=1&s=%5B{%2239%22:%5B110%5D},{%2240%22:%5B112%5D},{%2241%22:%5B109,110,113,114,115%5D}%5D"
     }
 };
+
+GS.jsonParse =function(json){
+    var state, i, j, y;
+
+    console.log("jsonParse("+json+")");
+    var myJsonObj = JS.jsonParse(json);
+    console.log("myJsonObj.length "+myJsonObj.length);
+
+    for (i = 0; i < myJsonObj.length; i++) {
+
+        console.log("myJsonObj[i] "+myJsonObj[i]);
+
+      for (y in myJsonObj[i]) {
+        for (j = 0 ; j < myJsonObj[i][y].length ; j++) {
+            console.log("this.listLife.addCell("+myJsonObj[i][y][j]+", "+parseInt(y, 10)+", "+GS.GOL.listLife.actualState+")");
+        }
+      }
+    }
+
+
+    return myJsonObj;
+
+}
 
 
 GS.GOL.zoom={
@@ -166,74 +228,48 @@ GS.GOL.zoom={
     ]
 };
 
-var testing = function(){
-    GS.GOL.handlers.buttons.run();
-};
-
 
 
 GS.document ={
-    body: Element,
+    body: new Element("document"),
 
     getElementById : function(type){
-        console.log("document.getElementById("+type+")");
+
         if(ElementID[type] == null){
-            ElementID[type] = Element;
+            ElementID[type] = new Element(type);;
         }
-        /*
-                           ["canvas",
-                           "generation",
-                           "steptime",
-                           "livecells",
-                           "layoutMessages",
-                           "hint",
-                           "buttonRun",
-                           "buttonStep",
-                           "buttonClear",
-                           "buttonExport",
-                           "buttonTrail",
-                           buttonGrid
-                           buttonColors
-                           exportUrlLink
-                           exportTinyUrlLink
-                           exportUrl]
-        */
+        //srconsole.log("document.getElementById("+type+").type = "+ElementID[type].type );
         return ElementID[type];
     },
+    func : [],
     addEventListener :function (event, handler, capture){
-        console.log("document.addEventListener: function(" + event + ", " + handler + ", " + capture + ")" );
-
+        this.func[event]=handler;
     }
 };
+function updateScreen(){
+    generation.text = "Generation: "+GS.GOL.element.generation.innerHTML;
+    livecells.text = "livecells: "+GS.GOL.element.livecells.innerHTML;
+    steptime.text =  "steptime "+ GS.GOL.element.steptime.innerHTML;
+    buttonRun.text = GS.document.getElementById('buttonRun').value;
+}
 
-/**
-this.element.steptime.text = "steptime 0 / 0 (0 / 0)"
-this.element.livecells.text = "livecells: 0";
-this.element.generation.text = 'Generation: 0';
-this.element.generation = generation;
-this.element.steptime = steptime;
-this.element.livecells = livecells;
-
-this.element.generation.text = "Generation: "+this.generation;
-this.element.steptime.text = "steptime "+algorithmTime + ' / '+guiTime+' ('+Math.round(this.times.algorithm) + ' / '+Math.round(this.times.gui)+')';
-this.element.livecells.text = "livecells: "+liveCellNumber;
-
-**/
-
-function startNewGame(){
+function init(){
     console.log("Start New Game!");
     GS.GOL.init();
 }
 
+function startNewGame(){
+
+    GS.GOL.prepare();
+}
+
 function update(){
-    //console.log("function update()");
     GS.GOL.nextStep();
 }
 
 
-function gamePause(){
+function gameRun(){
     GS.GOL.handlers.buttons.run();
-
 }
 
 function gameClear(){
@@ -244,10 +280,6 @@ function gameStep(){
     GS.GOL.handlers.buttons.step();
 }
 
-function chengeCell(column,row){
-
-}
-
 function MouseDown(event){
     GS.GOL.handlers.canvasMouseDown(event);
 }
@@ -256,61 +288,7 @@ function MouseUp(event){
     GS.GOL.handlers.canvasMouseUp();
 }
 function  MouseMove(event){
-    //event.offsetParent = false;
     GS.GOL.handlers.canvasMouseMove(event);
-}
-
-
-
-
-
-
-
-
-function setupscreen(){
-    //Calculate board size
-    maxColumn = Math.floor(gameCanvas.width / gameCanvas.blockSize);
-    maxRow = Math.floor(gameCanvas.height / gameCanvas.blockSize);
-    maxIndex = maxRow * maxColumn;
-    //Initialize Board
-    board = new Array(maxIndex);
-
-    for (var column = 0; column < maxColumn; column++) {
-        for (var row = 0; row < maxRow; row++) {
-            createBlock(column, row);
-        }
-    }
-}
-
-function createBlock(column, row) {
-
-    if (component == null)
-        component = Qt.createComponent("Block.qml");
-
-    // Note that if Block.qml was not a local file, component.status would be
-    // Loading and we should wait for the component's statusChanged() signal to
-    // know when the file is downloaded and ready before calling createObject().
-    if (component.status == Quick.Component.Ready) {
-        var dynamicObject = component.createObject(gameCanvas);
-        if (dynamicObject == null) {
-            console.log("error creating block");
-            console.log(component.errorString());
-            return false;
-        }
-        dynamicObject.row = row;
-        dynamicObject.column = column;
-
-        dynamicObject.x = column * gameCanvas.blockSize;
-        dynamicObject.y = row * gameCanvas.blockSize;
-        dynamicObject.width = gameCanvas.blockSize;
-        dynamicObject.height = gameCanvas.blockSize;
-        board[index(column, row)] = dynamicObject;
-    } else {
-        console.log("error loading block component");
-        console.log(component.errorString());
-        return false;
-    }
-    return true;
 }
 
 

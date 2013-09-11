@@ -138,20 +138,20 @@
     init : function() {
       try {
         this.listLife.init();   // Reset/init algorithm
-        console.log("listLife.init");
+
         this.loadConfig();      // Load config from URL (autoplay, colors, zoom, ...)
-        console.log("loadConfigt");
+
         this.loadState();       // Load state from URL
-        console.log("loadState");
+
         this.keepDOMElements(); // Keep DOM References (getElementsById)
-        console.log("keepDOMElements");
+
         this.canvas.init();     // Init canvas GUI
-        console.log("canvas.init");
+
         this.registerEvents();  // Register event handlers
-        console.log("registerEvents");
+
     
         this.prepare();
-        console.log("prepare");
+
       } catch (e) {
         console.log("** Error: "+e);
       }
@@ -202,8 +202,8 @@
          * Load world state from URL parameter
          */
     loadState : function() {
-      var state, i, j, y //,s = this.helpers.getUrlParameter('s');
-      var s = 'random';
+      var state, i, j, y ,s = this.helpers.getUrlParameter('s');
+      //var s = 'random';
 
       if ( s === 'random') {
         this.randomState();

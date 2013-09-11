@@ -2,7 +2,7 @@
 .import QtQuick.LocalStorage 2.0 as Sql
 .import QtQuick 2.0 as Quick
 .import "js/game-of-life-v3.1.1.js" as GS
-.import "js/json-minified.js" as JS
+.import "js/json-sans-eval.js" as JS
 
 var maxColumn = 22;
 var maxRow = 15;
@@ -238,7 +238,7 @@ GS.document ={
         if(ElementID[type] == null){
             ElementID[type] = new Element(type);;
         }
-        console.log("document.getElementById("+type+").type = "+ElementID[type].type );
+        //srconsole.log("document.getElementById("+type+").type = "+ElementID[type].type );
         return ElementID[type];
     },
     func : [],
@@ -254,11 +254,12 @@ function updateScreen(){
 }
 
 function init(){
+    console.log("Start New Game!");
     GS.GOL.init();
 }
 
 function startNewGame(){
-    console.log("Start New Game!");
+
     GS.GOL.prepare();
 }
 

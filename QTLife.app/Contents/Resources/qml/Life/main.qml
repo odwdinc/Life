@@ -4,13 +4,12 @@ import "LifeGame.js" as SameGame
 
 Rectangle {
     id: screen
-    function startNewGame(){
-        SameGame.startNewGame();
+    function init(){
+        SameGame.init();
     }
     function update(){
         SameGame.update();
     }
-    property alias gameModeButton: gameMode.text
 
     property bool paused: false
 
@@ -45,9 +44,6 @@ Rectangle {
                 onPressed : SameGame.MouseDown(mouse);
                 onReleased: SameGame.MouseUp(mouse);
                 onPositionChanged: SameGame.MouseMove(mouse);
-                //onClicked: SameGame.handleClick(mouse.x,mouse.y);
-                //onPositionChanged: SameGame.handleClick(mouse.x,mouse.y);
-
             }
         }
     }
@@ -64,11 +60,35 @@ Rectangle {
 
         Button {
             id: buttonRun
+            x: 24
+            y: 1
             anchors { left: parent.left; }
-            text: "New Game"
+            text: "Run"
+            anchors.leftMargin: 24
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 8
-            onClicked: SameGame.startNewGame()
+            onClicked: SameGame.gameRun();
+        }
+
+
+        Button {
+            id: gameClear
+            x: 125
+            y: 1
+            text: "Clear"
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: 8
+            onClicked:SameGame.gameClear();
+        }
+
+        Button {
+            id: gameStep
+            x: 73
+            y: 1
+            text: "Step"
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: 8
+            onClicked:SameGame.gameStep();
         }
 
         Text {
@@ -85,36 +105,6 @@ Rectangle {
             anchors.rightMargin: 636
         }
 
-        Button {
-
-            id: gameMode
-            x: 95
-            y: 4
-            text: "Play"
-            anchors.bottom: parent.bottom
-            anchors.bottomMargin: 8
-            onClicked:SameGame.gamePause();
-        }
-
-        Button {
-            id: gameClear
-            x: 256
-            y: 1
-            text: "Clear"
-            anchors.bottom: parent.bottom
-            anchors.bottomMargin: 8
-            onClicked:SameGame.gameClear();
-        }
-
-        Button {
-            id: gameStep
-            x: 173
-            y: 1
-            text: "Step"
-            anchors.bottom: parent.bottom
-            anchors.bottomMargin: 8
-            onClicked:SameGame.gameStep();
-        }
 
         Text {
             id: livecells
@@ -150,10 +140,6 @@ Rectangle {
         State {
             name: "Paused"
             when: paused == true
-            PropertyChanges {
-                target: gameMode
-                text: "Play"
-            }
         },
         State {
             when: paused == false
