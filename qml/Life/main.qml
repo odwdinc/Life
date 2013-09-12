@@ -15,7 +15,7 @@ Rectangle {
 
     signal startTimer(int delay)
 
-    width: 1020; height: 720
+    width: 720; height: 500
 
     SystemPalette { id: activePalette }
 
@@ -33,7 +33,7 @@ Rectangle {
         Item {
             id: gameCanvas
             property int score: 0
-            property int blockSize: 40
+            property int blockSize: 10
 
             anchors.centerIn: parent
             width: parent.width - (parent.width % blockSize);

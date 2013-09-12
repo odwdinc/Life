@@ -45,10 +45,14 @@ function index(column, row) {
 }
 
 function handleClick(xPos, yPos) {
-    var column = Math.floor(xPos / GS.GOL.zoom.schemes[GS.GOL.zoom.current].cellSize);
-    var row = Math.floor(yPos / GS.GOL.zoom.schemes[GS.GOL.zoom.current].cellSize);
-    if (column >= maxColumn || column < 0 || row >= maxRow || row < 0)
-        return [-1,-1];
+    console.log(GS.GOL.canvas.width + " : " + gameCanvas.width + " -> "+xPos);
+
+
+    console.log(GS.GOL.canvas.width +" -> "+ " : " + gameCanvas.width + " -> "+Math.floor(xPos/gameCanvas.blockSize));
+
+    var column = Math.floor(xPos/gameCanvas.blockSize);
+    var row = Math.floor(yPos/gameCanvas.blockSize);
+
     return [column,row];
 }
 
@@ -61,8 +65,12 @@ var Context = {
             return;
         }
 
-        var column = Math.floor(x / GS.GOL.zoom.schemes[GS.GOL.zoom.current].cellSize);
-        var row = Math.floor(y / GS.GOL.zoom.schemes[GS.GOL.zoom.current].cellSize);
+        var cellSpace = GS.GOL.canvas.cellSpace;
+
+        var column = ((x+cellSpace)/cellSpace) / 771 * 720;
+        var row = ((y+cellSpace)/cellSpace)/ 496 * 470;
+
+
 
         var  dynamicObject = board[index(column, row)];
 
@@ -82,8 +90,8 @@ var Context = {
                     return false;
                 }
 
-                dynamicObject.x = x;
-                dynamicObject.y = y;
+                dynamicObject.x = column;
+                dynamicObject.y = row;
                 dynamicObject.width = width;
                 dynamicObject.height = height;
                 dynamicObject.trailColor.width = width;
@@ -99,16 +107,15 @@ var Context = {
 
         var cellState = GS.GOL.canvas.context.fillStyle;
         var currentSchemes = GS.GOL.colors.schemes[GS.GOL.colors.current];
-
-
+        /**
         if(cellState === currentSchemes.dead){
             dynamicObject.sTate = 0;
-        }else if(cellState === currentSchemes.alive || currentSchemes.alive.indexOf(cellState) > -1){
-            dynamicObject.sTate = 2;
-        }else{
-            dynamicObject.sTate = 5;
-            dynamicObject.trailColor.color = cellState;
         }
+        else{
+        **/
+        dynamicObject.sTate = 5;
+        dynamicObject.trailColor.color = cellState;
+        //}
 
 
     }
@@ -135,48 +142,52 @@ GS.GOL.keepDOMElementsr= function() {
 };
 
 GS.GOL.helpers.mousePosition = function (e) {
+    //console.log(gameCanvas.width+","+gameCanvas.height);
     return handleClick(e.x,e.y);
 };
 
 
 var Element = function(vale){
-   return {
-    type : vale,
-    getContext : function(vale){
-        return Context;
-    },
-    s:{
+    return {
+        type : vale,
+        getContext : function(vale){
+            return Context;
+        },
+        s:{
 
-    },
-    style:{
-        display:""
-    },
-    func : [],
-    addEventListener :function (event, handler, capture){
-        this.func[event]=handler;
-    },
-    setAttribute : function(type,vale){
-        console.log("Element("+this.type+").setAttribute : function("+ type + "," + vale + ")");
-    },
-    getAttribute : function(type,vale){
-        console.log("Element("+this.type+").getAttribute : function("+ type + "," + vale + ")");
-    },
-    innerHTML:"",
-    value:"",
-    href:"",
-    style : {
-        display:""
-    },
-    OldValue : {
+        },
+        style:{
+            display:""
+        },
+        func : [],
+        addEventListener :function (event, handler, capture){
+            this.func[event]=handler;
+        },
+        setAttribute : function(type,vale){
+            console.log("Element("+this.type+").setAttribute : function("+ type + "," + vale + ")");
+            if(type === "width"){
+
+            }
+        },
+        getAttribute : function(type,vale){
+            console.log("Element("+this.type+").getAttribute : function("+ type + "," + vale + ")");
+        },
         innerHTML:"",
         value:"",
         href:"",
-        style:{
-
+        style : {
             display:""
-        }
+        },
+        OldValue : {
+            innerHTML:"",
+            value:"",
+            href:"",
+            style:{
 
-    }
+                display:""
+            }
+
+        }
     };
 
 };
@@ -203,11 +214,11 @@ GS.jsonParse =function(json){
 
         console.log("myJsonObj[i] "+myJsonObj[i]);
 
-      for (y in myJsonObj[i]) {
-        for (j = 0 ; j < myJsonObj[i][y].length ; j++) {
-            console.log("this.listLife.addCell("+myJsonObj[i][y][j]+", "+parseInt(y, 10)+", "+GS.GOL.listLife.actualState+")");
+        for (y in myJsonObj[i]) {
+            for (j = 0 ; j < myJsonObj[i][y].length ; j++) {
+                console.log("this.listLife.addCell("+myJsonObj[i][y][j]+", "+parseInt(y, 10)+", "+GS.GOL.listLife.actualState+")");
+            }
         }
-      }
     }
 
 
@@ -216,17 +227,7 @@ GS.jsonParse =function(json){
 }
 
 
-GS.GOL.zoom={
-    current : 0,
-    schedule : false,
-    schemes : [
-        {
-            columns : 23,
-            rows : 16,
-            cellSize : 36
-        }
-    ]
-};
+
 
 
 
@@ -254,7 +255,31 @@ function updateScreen(){
 }
 
 function init(){
-    console.log("Start New Game!");
+    maxColumn = gameCanvas.width/gameCanvas.blockSize;
+    maxRow = gameCanvas.height/gameCanvas.blockSize;
+
+
+    console.log("Start New Game! "+gameCanvas.width+":"+maxColumn+","+gameCanvas.height+":"+maxRow);
+
+    maxIndex = maxColumn * maxRow;
+
+
+
+
+
+    GS.GOL.zoom={
+        current : 0,
+        schedule : false,
+        schemes : [
+            {
+                columns :maxColumn-2,
+                rows : maxRow-2,
+                cellSize : gameCanvas.blockSize
+            }
+        ]
+    };
+
+
     GS.GOL.init();
 }
 
